@@ -6,6 +6,10 @@ from app.team_metrics import calculate_synergy_score, evaluate_team_coverage
 from app.visualizer import visualize_synergy_scores, visualize_team_composition
 from app.radar_chart import plot_team_radar_chart
 from app.type_icons import TYPE_EMOJIS
+import sys
+import os
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'app'))
 
 
 @st.cache_data
