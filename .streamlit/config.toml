@@ -1,0 +1,6 @@
+[server]
+headless = true
+enableCORS = false
+
+# Pythonpath ensures the app module is included in the path
+pythonPath = "./"
