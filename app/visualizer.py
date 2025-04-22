@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import collections
 import seaborn as sns
+from app.type_icons import TYPE_EMOJIS
 
 def visualize_synergy_scores(synergy_scores):
     sorted_scores = sorted(enumerate(synergy_scores), key=lambda x: x[1], reverse=True)
