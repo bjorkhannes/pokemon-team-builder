@@ -1,5 +1,4 @@
-import numpy as np
-import pandas as pd
+
 
 def calculate_synergy_score(team_df):
     synergy_score = team_df['total_stats'].sum()

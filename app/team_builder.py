@@ -1,4 +1,4 @@
-from app.team_metrics import calculate_synergy_score
+
 from itertools import combinations
 import random
 

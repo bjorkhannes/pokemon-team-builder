@@ -1,9 +1,10 @@
 import sys
 import os
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 from app.data_loader import fetch_pokemon_data
 from app.team_builder import generate_top_team_candidates
 from app.team_metrics import calculate_synergy_score, evaluate_team_coverage

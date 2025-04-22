@@ -15,7 +15,7 @@ def visualize_synergy_scores(synergy_scores):
     # Create the plot
     sns.set_theme(style="whitegrid")  # Set Seaborn theme
     fig, ax = plt.subplots(figsize=(4, 2))  # Adjust size as needed
-    sns.barplot(x="Team", y="Synergy Score", data=data, ax=ax, palette="BuPu")
+    sns.barplot(x="Team", y="Synergy Score", data=data, ax=ax, palette="spring")  # Use Seaborn for barplot
 
     # Customize the plot
     ax.set_title("Team Synergy Scores", fontsize=14)
