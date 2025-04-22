@@ -146,7 +146,7 @@ def main():
                 filtered_df,
                 team_size=6,
                 top_n=5,
-                max_teams=10000,
+                max_teams=1000,
                 progress_callback=progress_callback,
                 locked_pokemon=locked_pokemon
             )
