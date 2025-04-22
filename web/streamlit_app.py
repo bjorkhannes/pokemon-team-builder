@@ -7,7 +7,7 @@ import pandas as pd
 import collections
 import matplotlib.pyplot as plt
 from app.data_loader import fetch_pokemon_data
-from app.team_builder import generate_top_team_candidates
+from app.team_builder import generate_top_team_candidates, evaluate_team  # Import the evaluate_team function separately
 from app.team_metrics import calculate_synergy_score, evaluate_team_coverage
 from app.visualizer import visualize_team_composition
 from app.radar_chart import plot_team_radar_chart
@@ -134,17 +134,19 @@ def main():
 
         if st.button("⚔️ Generate Optimal Teams"):
             st.subheader("Generating Top 5 Teams")
-            progress = st.spinner("Generating teams...")
+            progress = st.progress(0.2)
+            st.write("Generating teams... 20%")
             status_text = st.empty()
 
             def progress_callback(progress_fraction):
                 progress.progress(progress_fraction)
+                status_text.text(f"Generating teams... {int(progress_fraction * 100)}%")
 
             top_teams = generate_top_team_candidates(
                 filtered_df,
                 team_size=6,
                 top_n=5,
-                max_teams=1000,
+                max_teams=10000,
                 progress_callback=progress_callback,
                 locked_pokemon=locked_pokemon
             )
@@ -191,8 +193,6 @@ def main():
                     st.subheader(f"Team {i+1} Stats")
                     fig = plot_team_radar_chart(team, i, team_name=f"Team {i+1}")
                     st.pyplot(fig)
-
-            
 
         elif st.session_state.teams_generated:
             st.session_state.teams_generated = False
