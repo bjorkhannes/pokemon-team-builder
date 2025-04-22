@@ -8,6 +8,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 numpy==1.26.4
 matplotlib==3.7.3
+Pillow==9.5.0
 pandas==2.1.4
 protobuf==4.25.3
 pyarrow==14.0.2
