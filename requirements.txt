@@ -6,7 +6,7 @@ certifi==2023.11.17
 cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
-numpy==1.24.4
+numpy==1.26.4
 matplotlib==3.7.3
 pandas==2.1.4
 protobuf==4.25.3
@@ -19,6 +19,7 @@ PyYAML==6.0.1
 requests==2.31.0
 seaborn==0.13.2
 six==1.16.0
+scikit-learn==1.4.2
 streamlit==1.25.0
 tqdm==4.66.1
 typing_extensions==4.8.0
