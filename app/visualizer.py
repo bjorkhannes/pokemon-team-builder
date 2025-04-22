@@ -1,41 +1,42 @@
 import matplotlib.pyplot as plt
 import streamlit as st
-import collections
 import seaborn as sns
+import collections
 from app.type_icons import TYPE_EMOJIS
+
 
 def visualize_synergy_scores(synergy_scores):
     sorted_scores = sorted(enumerate(synergy_scores), key=lambda x: x[1], reverse=True)
     indices, scores = zip(*sorted_scores)
 
-    fig, ax = plt.subplots()
-    bars = ax.bar(range(len(scores)), scores, color='skyblue')
+    # Create a DataFrame for Seaborn
+    data = {"Team": [f"Team {i+1}" for i in indices], "Synergy Score": scores}
 
+    # Create the plot
+    sns.set_theme(style="whitegrid")  # Set Seaborn theme
+    fig, ax = plt.subplots(figsize=(4, 2))  # Adjust size as needed
+    sns.barplot(x="Team", y="Synergy Score", data=data, ax=ax, palette="BuPu")
+
+    # Customize the plot
     ax.set_title("Team Synergy Scores", fontsize=14)
     ax.set_xlabel("Team", fontsize=12)
     ax.set_ylabel("Synergy Score", fontsize=12)
-    ax.set_xticks(range(len(scores)))
-    ax.set_xticklabels([f"Team {i+1}" for i in indices])
-
-    # Add labels above bars
-    for bar in bars:
-        yval = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2, yval + 0.2, f"{yval:.2f}", ha='center', fontsize=10)
+    ax.bar_label(ax.containers[0], fmt="%.2f", fontsize=10)  # Add labels above bars
 
     st.pyplot(fig)
 
 def visualize_team_composition(covered_types, uncovered_types):
-    st.subheader("Covered Types")
+    st.subheader("✅ Covered Types")
     if covered_types:
-        st.markdown("✅ " + ", ".join(covered_types))
+        st.markdown(", ".join(covered_types))
     else:
         st.markdown("✅ None")
 
-    st.subheader("Uncovered Types")
+    st.subheader("❌Uncovered Types")
     if uncovered_types:
-        st.markdown("❌ " + ", ".join(uncovered_types))
+        st.markdown(", ".join(uncovered_types))
     else:
-        st.markdown("❌ None")
+        st.markdown("None")
 
 
 
