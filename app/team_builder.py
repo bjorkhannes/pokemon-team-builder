@@ -1,6 +1,16 @@
 
 from itertools import combinations
 import random
+from itertools import islice, combinations
+
+def sample_combinations(pool, k, n_samples):
+    seen = set()
+    generator = combinations(pool, k)
+    for combo in generator:
+        if len(seen) >= n_samples:
+            break
+        seen.add(combo)
+        yield combo
 
 # Define evaluate_team at the top level of the module
 def evaluate_team(combo, locked_indices, pokemon_data):
@@ -15,26 +25,26 @@ def generate_top_team_candidates(
     top_n=5,
     max_teams=1000,
     locked_pokemon=None,
-    progress_callback=None  # Add progress callback
+    progress_callback=None
 ):
     if locked_pokemon is None:
         locked_pokemon = []
 
-    locked_df = pokemon_df[pokemon_df["name"].str.lower().isin([p.lower() for p in locked_pokemon])]
-    remaining_pool = pokemon_df[~pokemon_df["name"].str.lower().isin([p.lower() for p in locked_pokemon])]
+    # Normalize names for comparison
+    locked_lower = [p.lower() for p in locked_pokemon]
+    locked_df = pokemon_df[pokemon_df["name"].str.lower().isin(locked_lower)]
+    remaining_pool = pokemon_df[~pokemon_df["name"].str.lower().isin(locked_lower)]
 
     num_remaining = team_size - len(locked_pokemon)
     if num_remaining < 0:
         return []
 
-    # Directly sample a subset of combinations without generating all of them
-    if len(remaining_pool) >= num_remaining:
-        sampled_combos = random.sample(
-            list(combinations(remaining_pool.index, num_remaining)),
-            min(max_teams, len(list(combinations(remaining_pool.index, num_remaining))))
-        )
-    else:
-        sampled_combos = list(combinations(remaining_pool.index, num_remaining))
+    # Shuffle pool for pseudo-randomness
+    pool = list(remaining_pool.index)
+    random.shuffle(pool)
+
+    # Use generator to sample combinations efficiently
+    sampled_combos = list(islice(combinations(pool, num_remaining), max_teams))
 
     locked_indices = list(locked_df.index)
     pokemon_data = pokemon_df.to_dict(orient="records")
@@ -44,9 +54,8 @@ def generate_top_team_candidates(
         team, synergy_score = evaluate_team(combo, locked_indices, pokemon_data)
         scored_teams.append((team, synergy_score))
 
-        # Update progress if callback is provided
         if progress_callback:
-            progress_callback((i + 1) / len(sampled_combos))  # Fraction of progress
+            progress_callback((i + 1) / len(sampled_combos))
 
-    scored_teams = sorted(scored_teams, key=lambda x: x[1], reverse=True)
+    scored_teams.sort(key=lambda x: x[1], reverse=True)
     return [team for team, _ in scored_teams[:top_n]]
