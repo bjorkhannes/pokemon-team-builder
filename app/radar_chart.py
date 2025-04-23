@@ -28,7 +28,7 @@ def plot_team_radar_chart(team_df, team_index, team_name="Team"):
 
     ax.set_yticklabels([])
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels, color='white', fontsize=9)
+    ax.set_xticklabels(labels, color='black', fontsize=9)
 
     # Include team_name in the title for clarity
     ax.set_title(f"{team_name} Stat Profile", color="white", fontsize=12, pad=20)
