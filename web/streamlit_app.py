@@ -59,8 +59,12 @@ def main():
             st.session_state.pokemon_data = pokemon_df
             st.session_state.pokemon_loaded = True
 
-    # Show success message after progress bar completes
-    st.success("Pokémon data loaded successfully!")
+    # Display the success message temporarily
+    success_placeholder = st.empty()
+    success_placeholder.success("Pokémon data loaded successfully!")
+    time.sleep(2)  # Wait for 1 second
+    success_placeholder.empty()  # Clear the message
+
 
     # Proceed to filters and team generation
     st.write("🔧 Team Filters")
@@ -93,8 +97,24 @@ def main():
         lambda types: " | ".join(f"{TYPE_EMOJIS.get(t.lower(), '')} {t.title()}" for t in types)
     )
 
-    all_names = filtered_df["name"].unique()
-    locked_pokemon = st.multiselect("🔍 Lock-in Pokémon (Optional)", options=sorted(all_names))
+    filtered_df = filtered_df.sort_values(by="name")
+    # Prepend type icons to Pokémon names
+    filtered_df["display_name"] = filtered_df.apply(
+        lambda row: f"{' '.join(TYPE_EMOJIS.get(t.lower(), t.title()) for t in row['types'])} {'◯ ' if len(row['types']) == 1 else ''} {row['name']}",
+        axis=1
+    )
+
+    # Use the new display_name column for the dropdown
+    locked_pokemon = st.multiselect(
+        "🔍 Lock-in Pokémon (Optional)",
+        options=filtered_df["display_name"].tolist()
+    )
+
+    # Extract the actual Pokémon names from the selected options
+    locked_pokemon = [
+        name.split(" ", maxsplit=len(row["types"]))[-1]  # Extract the name after the type icons
+        for name in locked_pokemon
+    ]
 
     if st.button("⚔️ Generate Optimal Teams"):
         st.subheader("Generating Top 5 Teams")
