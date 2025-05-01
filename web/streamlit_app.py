@@ -13,6 +13,41 @@ from app.radar_chart import plot_team_radar_chart
 import time
 from app.type_icons import TYPE_EMOJIS
 
+
+# Function to display sprites in a responsive layout
+def display_sprites_with_columns(pokemon_team, columns_per_row=3):
+    # Inject CSS to ensure inline layout for icons and names
+    st.markdown(
+        """
+        <style>
+        .sprite-caption {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px; /* Space between icons and name */
+            white-space: nowrap; /* Prevent wrapping */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    for i in range(0, len(pokemon_team), columns_per_row):
+        row = pokemon_team[i:i + columns_per_row]
+        cols = st.columns(len(row))
+        for col, pokemon in zip(cols, row):
+            with col:
+                # Get type icons for the Pokémon
+                type_icons = " ".join(TYPE_EMOJIS.get(t.lower(), t.title()) for t in pokemon["types"])
+                # Display the sprite
+                st.image(pokemon["sprite_url"], width=80)
+                # Display the name and type icons in a single line
+                st.markdown(
+                    f'<div class="sprite-caption">{type_icons} {pokemon["name"]}</div>',
+                    unsafe_allow_html=True,
+                )
+
+
 @st.cache_data
 def time_function(func):
     def wrapper(*args, **kwargs):
@@ -46,7 +81,7 @@ def main():
     if not st.session_state.pokemon_loaded:
         with st.spinner("Fetching Pokémon data... Please wait."):
             progress_bar = st.progress(0)  # Initialize progress bar
-            st.markdown("### Loading Pokémon data...")
+            user_feedback_loading_message = st.markdown("### Loading Pokémon data...")
 
             # Simulate progress updates
             for i in range(1, 6):
@@ -58,12 +93,8 @@ def main():
             pokemon_df = pokemon_df[pokemon_df["is_final_evolution"] == True].reset_index(drop=True)
             st.session_state.pokemon_data = pokemon_df
             st.session_state.pokemon_loaded = True
-
-    # Display the success message temporarily
-    success_placeholder = st.empty()
-    success_placeholder.success("Pokémon data loaded successfully!")
-    time.sleep(2)  # Wait for 1 second
-    success_placeholder.empty()  # Clear the message
+            user_feedback_loading_message.empty()
+            progress_bar.empty()
 
 
     # Proceed to filters and team generation
@@ -103,18 +134,22 @@ def main():
         lambda row: f"{' '.join(TYPE_EMOJIS.get(t.lower(), t.title()) for t in row['types'])} {'◯ ' if len(row['types']) == 1 else ''} {row['name']}",
         axis=1
     )
+    
+
+    # Create a mapping between display_name and name
+    display_name_to_name = dict(zip(filtered_df["display_name"], filtered_df["name"]))
 
     # Use the new display_name column for the dropdown
-    locked_pokemon = st.multiselect(
+    locked_pokemon_display = st.multiselect(
         "🔍 Lock-in Pokémon (Optional)",
-        options=filtered_df["display_name"].tolist()
+        options=filtered_df["display_name"].tolist(),
+        default=st.session_state.get("locked_pokemon", []),  # Persist selection
+        key="locked_pokemon"  # Bind to session state
     )
 
-    # Extract the actual Pokémon names from the selected options
-    locked_pokemon = [
-        name.split(" ", maxsplit=len(row["types"]))[-1]  # Extract the name after the type icons
-        for name in locked_pokemon
-    ]
+    # Extract the actual Pokémon names from the selected options using the mapping
+    locked_pokemon = [display_name_to_name[name] for name in locked_pokemon_display]
+    print(f"Locked Pokémon: {locked_pokemon}")  # Debugging
 
     if st.button("⚔️ Generate Optimal Teams"):
         st.subheader("Generating Top 5 Teams")
@@ -125,11 +160,12 @@ def main():
         for i in range(1, 6):
             time.sleep(0.5)  # Simulate work
             progress_bar.progress(i * 20)
-            status_text.text(f"Step {i}/5: Sorting through pokémon...")
-            
+            status_text.text(f"Step {i}/5: Sorting through Pokémon...")
+
         with st.spinner("Performing calculations...", show_time=True):
             time.sleep(7)
         st.success("Calculations completed! Generating teams...")
+
         # Call generate_top_team_candidates
         top_teams = generate_top_team_candidates(
             filtered_df,
@@ -164,20 +200,19 @@ def main():
                     lambda types: " | ".join(f"{TYPE_EMOJIS.get(t.lower(), '')} {t.title()}" for t in types)
                 )
 
+                team_sorted = team.sort_values(by="total_stats", ascending=False)
+
                 # Include individual stats in the summary table
                 st.dataframe(
-                    team[
+                    team_sorted[
                         ["name", "types_display", "total_stats", "hp", "attack", "defense", "special-attack", "special-defense", "speed"]
                     ]
                     .rename(columns={"types_display": "types"})
                     .reset_index(drop=True)
                 )
 
-                cols = st.columns(len(team))
-                for col, (_, row) in zip(cols, team.iterrows()):
-                    with col:
-                        st.image(row["sprite_url"], width=80, caption=row["name"].title())
-                        st.markdown(get_type_emojis(row["types"]))
+                # Display sprites in a responsive layout
+                display_sprites_with_columns(team_sorted.to_dict(orient="records"))
 
                 covered_types, uncovered_types = evaluate_team_coverage(team)
 

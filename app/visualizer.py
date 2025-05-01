@@ -13,7 +13,8 @@ def visualize_synergy_scores(synergy_scores):
     data = {"Team": [f"Team {i+1}" for i in indices], "Synergy Score": scores}
 
     # Create the plot
-    sns.set_theme(style="whitegrid")  # Set Seaborn theme
+    sns.set_style(style="darkgrid")  # Set Seaborn theme
+    plt.style.use("dark_background")  # Use Seaborn style for Matplotlib
     fig, ax = plt.subplots(figsize=(4, 2))  # Adjust size as needed
     sns.barplot(x="Team", y="Synergy Score", data=data, ax=ax, palette="spring")  # Use Seaborn for barplot
 
@@ -21,7 +22,7 @@ def visualize_synergy_scores(synergy_scores):
     ax.set_title("Team Synergy Scores", fontsize=14)
     ax.set_xlabel("Team", fontsize=12)
     ax.set_ylabel("Synergy Score", fontsize=12)
-    ax.bar_label(ax.containers[0], fmt="%.2f", fontsize=10)  # Add labels above bars
+    ax.bar_label(ax.containers[0], fmt="%.0f", fontsize=8)  # Add labels above bars
 
     st.pyplot(fig)
 

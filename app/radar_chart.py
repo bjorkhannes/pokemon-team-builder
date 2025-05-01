@@ -26,12 +26,17 @@ def plot_team_radar_chart(team_df, team_index, team_name="Team"):
     ax.plot(angles, stats, color=COLOR_PALETTE[team_index % len(COLOR_PALETTE)], linewidth=2)
     ax.fill(angles, stats, color=COLOR_PALETTE[team_index % len(COLOR_PALETTE)], alpha=0.4)
 
-    ax.set_yticklabels([])
-    ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(labels, color='black', fontsize=9)
+    # Set white text for y-axis labels
+    ax.set_yticklabels([], color="white")
 
-    # Include team_name in the title for clarity
+    # Set white text for x-axis labels
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels(labels, color="white", fontsize=9)
+
+    # Set white text for the title
     ax.set_title(f"{team_name} Stat Profile", color="white", fontsize=12, pad=20)
 
-    return fig
+    # Add a legend (optional)
+    ax.legend([team_name], loc="upper right", bbox_to_anchor=(1.1, 1.1), fontsize=8, labelcolor="white", facecolor="black", edgecolor="white")
 
+    return fig
